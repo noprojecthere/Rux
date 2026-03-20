@@ -196,14 +196,21 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if result["ok"]:
             stream_link = ""
             if WORKER_URL:
-                # Generate stream link via worker
-                async with aiohttp.ClientSession() as s:
-                    gen_url = f"{WORKER_URL}/gen?url={quote(result['vk_url'])}"
-                    async with s.get(gen_url) as r:
-                        gen_data = await r.json()
-                        if gen_data.get("ok"):
-                            stream_link = gen_data["link"]
+                try:
+                    async with aiohttp.ClientSession() as s:
+                        gen_url = f"{WORKER_URL}/gen?url={quote(result['vk_url'])}"
+                        async with s.get(gen_url) as r:
+                            text = await r.text()
+                            try:
+                                gen_data = json.loads(text)
+                                if gen_data.get("ok"):
+                                    stream_link = gen_data.get("link", "")
+                            except:
+                                stream_link = ""
+                except:
+                    stream_link = ""
 
+            
             text = (
                 f"✅ **Upload Successful!**\n\n"
                 f"📺 VK: `{result['vk_url']}`\n"
@@ -243,12 +250,20 @@ async def handle_url(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if result["ok"]:
             stream_link = ""
             if WORKER_URL:
-                async with aiohttp.ClientSession() as s:
-                    gen_url = f"{WORKER_URL}/gen?url={quote(result['vk_url'])}"
-                    async with s.get(gen_url) as r:
-                        gen_data = await r.json()
-                        if gen_data.get("ok"):
-                            stream_link = gen_data["link"]
+                try:
+                    async with aiohttp.ClientSession() as s:
+                        gen_url = f"{WORKER_URL}/gen?url={quote(result['vk_url'])}"
+                        async with s.get(gen_url) as r:
+                            text = await r.text()
+                            try:
+                                gen_data = json.loads(text)
+                                if gen_data.get("ok"):
+                                    stream_link = gen_data.get("link", "")
+                            except:
+                                stream_link = ""
+                except:
+                    stream_link = ""
+                    
 
             text_reply = (
                 f"✅ **Upload Successful!**\n\n"
