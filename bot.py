@@ -299,6 +299,23 @@ def main():
         logger.error("VK_TOKEN not set!")
         return
 
+    # Render ke liye dummy HTTP server (port bind)
+    import threading
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Bot running")
+        def log_message(self, *args):
+            pass
+
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    logger.info(f"HTTP server on port {port}")
+
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -316,6 +333,3 @@ def main():
     logger.info("Bot started!")
     app.run_polling(drop_pending_updates=True)
 
-
-if __name__ == "__main__":
-    main()
